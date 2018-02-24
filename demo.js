@@ -3,7 +3,7 @@ const TorDetector = require('tor-detector');
 let address = '89.234.157.254';
 
 //Set the list path.
-TorDetector.setListPath('nodes.txt');
+TorDetector.setListPath(__dirname + '/nodes.txt');
 
 //Update the content fo the list (or create the list if the file doesn't exist or is empty).
 TorDetector.updateFile().then(function(){

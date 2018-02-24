@@ -90,21 +90,24 @@ var TorDetector = {
 	loadDictionaryCache: function(asynchronous){
 		if ( asynchronous !== false ){
 			return new Promise(function(resolve, reject){
-				resolve(TorDetector.loadDictionaryCache(false));
+				try{
+					resolve(TorDetector.loadDictionaryCache(false));
+				}catch(ex){
+					reject(ex);
+				}
 			});
 		}
 		if ( this.cache === false || this.listPath === '' || typeof(this.listPath) !== 'string' ){
 			return false;
 		}
 		try{
-			let content = filesystem.readFileSync(__dirname + '/' + this.listPath).toString();
+			let content = filesystem.readFileSync(this.listPath).toString();
 			if ( content === '' ){
 				return false;
 			}
 			this.list = content;
 			return true;
 		}catch(ex){
-			console.log(ex);
 			throw 'Unable to load the list.';
 		}
 	},
@@ -119,7 +122,7 @@ var TorDetector = {
 	updateFile: function(){
 		return new Promise(function(resolve, reject){
 			if ( typeof(TorDetector.listPath) !== 'string' || TorDetector.listPath === '' ){
-				throw 'No path has been set.';
+				reject('No path has been set.');
 			}
 			https.get('https://check.torproject.org/exit-addresses', function(response){
 				response.setEncoding('UTF-8');
@@ -144,11 +147,11 @@ var TorDetector = {
 						filesystem.writeFileSync(__dirname + '/' + TorDetector.listPath, list);
 						resolve();
 					}catch(ex){
-						throw 'Unable to save the file.';
+						reject('Unable to save the file.');
 					}
 				});
 				response.on('error', function(){
-					throw 'An error occurred while getting the data.';
+					reject('An error occurred while getting the data.');
 				});
 			});
 		});
@@ -206,7 +209,11 @@ var TorDetector = {
 	isTor: function(address, asynchronous){
 		if ( asynchronous !== false ){
 			return new Promise(function(resolve, reject){
-				resolve(TorDetector.isTor(address, false));
+				try{
+					resolve(TorDetector.isTor(address, false));
+				}catch(ex){
+					reject(ex);
+				}
 			});
 		}
 		if ( typeof(address) !== 'string' || address === '' || net.isIP(address) === 0 ){
